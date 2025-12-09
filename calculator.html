@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Калькулятор</title>
+    <style>
+        :root {
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: #f5f5f5;
+        }
+
+        .calculator {
+            width: 320px;
+            padding: 20px;
+            border-radius: 12px;
+            background: #ffffff;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .display {
+            width: 100%;
+            height: 60px;
+            margin-bottom: 12px;
+            border: none;
+            border-radius: 8px;
+            background: #222;
+            color: #0f0;
+            text-align: right;
+            font-size: 32px;
+            padding: 0 12px;
+        }
+
+        .keys {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        button {
+            height: 60px;
+            border: none;
+            border-radius: 8px;
+            font-size: 22px;
+            cursor: pointer;
+            background: #e0e0e0;
+            transition: background 0.2s;
+        }
+
+        button[data-action="clear"] {
+            background: #ff9800;
+            color: #fff;
+        }
+
+        button.operator {
+            background: #ffd84c;
+        }
+
+        button.equal {
+            grid-column: span 2;
+            background: #4caf50;
+            color: #fff;
+        }
+
+        button:active {
+            filter: brightness(0.9);
+        }
+    </style>
+</head>
+<body>
+<div class="calculator">
+    <input id="display" class="display" type="text" value="0" readonly>
+    <div class="keys">
+        <button data-action="clear">C</button>
+        <button data-action="backspace">⌫</button>
+        <button data-value="%" class="operator">%</button>
+        <button data-action="divide" class="operator">÷</button>
+
+        <button data-value="7">7</button>
+        <button data-value="8">8</button>
+        <button data-value="9">9</button>
+        <button data-action="multiply" class="operator">×</button>
+
+        <button data-value="4">4</button>
+        <button data-value="5">5</button>
+        <button data-value="6">6</button>
+        <button data-action="subtract" class="operator">−</button>
+
+        <button data-value="1">1</button>
+        <button data-value="2">2</button>
+        <button data-value="3">3</button>
+        <button data-action="add" class="operator">+</button>
+
+        <button data-value="0">0</button>
+        <button data-value=".">.</button>
+        <button data-action="equals" class="equal">=</button>
+    </div>
+</div>
+
+<script>
+    (function () {
+        const display = document.getElementById('display');
+        const keys = document.querySelector('.keys');
+        let current = '0';
+        let operator = null;
+        let operand = null;
+
+        const updateDisplay = () => {
+            display.value = current;
+        };
+
+        const setInput = (value) => {
+            if (current === '0' && value !== '.') {
+                current = value;
+            } else if (value === '.' && current.includes('.')) {
+                return;
+            } else {
+                current += value;
+            }
+            updateDisplay();
+        };
+
+        const setOperator = (op) => {
+            if (operator && operand !== null) {
+                compute();
+            }
+            operator = op;
+            operand = parseFloat(current);
+            current = '0';
+        };
+
+        const compute = () => {
+            if (operator === null || operand === null) {
+                return;
+            }
+            const right = parseFloat(current);
+            let result = operand;
+            switch (operator) {
+                case 'add':
+                    result += right;
+                    break;
+                case 'subtract':
+                    result -= right;
+                    break;
+                case 'multiply':
+                    result *= right;
+                    break;
+                case 'divide':
+                    result = right === 0 ? 'Ошибка' : result / right;
+                    break;
+                default:
+                    break;
+            }
+            current = String(result);
+            operator = null;
+            operand = null;
+            updateDisplay();
+        };
+
+        keys.addEventListener('click', (event) => {
+            const target = event.target;
+            if (target.tagName !== 'BUTTON') {
+                return;
+            }
+
+            const value = target.dataset.value;
+            const action = target.dataset.action;
+
+            if (value) {
+                setInput(value);
+                return;
+            }
+
+            if (!action) {
+                return;
+            }
+
+            switch (action) {
+                case 'clear':
+                    current = '0';
+                    operator = null;
+                    operand = null;
+                    updateDisplay();
+                    break;
+                case 'backspace':
+                    current = current.length > 1 ? current.slice(0, -1) : '0';
+                    updateDisplay();
+                    break;
+                case 'add':
+                case 'subtract':
+                case 'multiply':
+                case 'divide':
+                    setOperator(action);
+                    break;
+                case 'equals':
+                    compute();
+                    break;
+                default:
+                    break;
+            }
+        });
+    }());
+</script>
+</body>
+</html>
+
