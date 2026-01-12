@@ -2,39 +2,27 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Калькулятор</title>
     <style>
         :root {
             font-family: Arial, sans-serif;
-
-            /* Light theme variables */
-            --bg-color: #f5f5f5;
-            --calculator-bg: #ffffff;
-            --display-bg: #222;
-            --display-color: #0f0;
-            --button-bg: #e0e0e0;
-            --button-color: #000;
-            --clear-button-bg: #ff9800;
-            --operator-button-bg: #ffd84c;
-            --equal-button-bg: #4caf50;
-            --equal-button-color: #fff;
-            --shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            --bg-body: #f5f5f5;
+            --bg-calculator: #ffffff;
+            --bg-button: #e0e0e0;
+            --bg-display: #222;
+            --color-display: #0f0;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --color-text: #000;
         }
 
-        .dark-theme {
-            /* Dark theme variables */
-            --bg-color: #1a1a1a;
-            --calculator-bg: #2d2d2d;
-            --display-bg: #0d0d0d;
-            --display-color: #00ff00;
-            --button-bg: #444;
-            --button-color: #fff;
-            --clear-button-bg: #ff6f00;
-            --operator-button-bg: #e6c52c;
-            --equal-button-bg: #388e3c;
-            --equal-button-color: #fff;
-            --shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        [data-theme="dark"] {
+            --bg-body: #1a1a1a;
+            --bg-calculator: #2d2d2d;
+            --bg-button: #404040;
+            --bg-display: #1a1a1a;
+            --color-display: #0f0;
+            --shadow: rgba(0, 0, 0, 0.5);
+            --color-text: #ffffff;
         }
 
         body {
@@ -43,56 +31,61 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            background: var(--bg-color);
-            transition: background-color 0.3s ease;
+            background: var(--bg-body);
+            transition: background 0.3s ease;
         }
 
         .calculator {
             width: 320px;
             padding: 20px;
             border-radius: 12px;
-            background: var(--calculator-bg);
-            box-shadow: var(--shadow);
-            transition: background-color 0.3s ease;
+            background: var(--bg-calculator);
+            box-shadow: 0 10px 40px var(--shadow);
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
         }
 
         .theme-toggle {
-            display: flex;
-            justify-content: flex-start;
-            margin-bottom: 10px;
-        }
-
-        .theme-toggle button {
-            background: var(--button-bg);
-            color: var(--button-color);
+            position: absolute;
+            top: 30px;
+            right: 20px;
+            width: 45px;
+            height: 45px;
             border: none;
-            padding: 8px;
-            border-radius: 4px;
+            border-radius: 50%;
+            background: var(--bg-button);
+            color: var(--color-text);
+            font-size: 22px;
             cursor: pointer;
-            font-size: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 40px;
-            height: 40px;
+            transition: background 0.3s ease, transform 0.2s;
+            box-shadow: 0 2px 8px var(--shadow);
+            z-index: 10;
         }
 
-        .theme-icon {
-            width: 20px;
-            height: 20px;
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .theme-toggle:active {
+            transform: scale(0.95);
         }
 
         .display {
             width: 100%;
             height: 60px;
             margin-bottom: 12px;
+            margin-top: 10px;
             border: none;
             border-radius: 8px;
-            background: var(--display-bg);
-            color: var(--display-color);
+            background: var(--bg-display);
+            color: var(--color-display);
             text-align: right;
             font-size: 32px;
-            padding: 0 12px;
+            padding: 0 70px 0 12px;
+            transition: background 0.3s ease, color 0.3s ease;
             box-sizing: border-box;
         }
 
@@ -108,58 +101,41 @@
             border-radius: 8px;
             font-size: 22px;
             cursor: pointer;
-            background: var(--button-bg);
-            color: var(--button-color);
-            transition: background 0.2s, transform 0.1s;
+            background: var(--bg-button);
+            color: var(--color-text);
+            transition: background 0.2s, color 0.2s;
         }
 
         button[data-action="clear"] {
-            background: var(--clear-button-bg);
+            background: #ff9800;
             color: #fff;
         }
 
         button.operator {
-            background: var(--operator-button-bg);
+            background: #ffd84c;
+            color: #000;
+        }
+
+        [data-theme="dark"] button.operator {
+            background: #ffd84c;
+            color: #000;
         }
 
         button.equal {
             grid-column: span 2;
-            background: var(--equal-button-bg);
-            color: var(--equal-button-color);
+            background: #4caf50;
+            color: #fff;
         }
 
         button:active {
-            transform: scale(0.95);
-        }
-
-        button:hover {
-            filter: brightness(1.1);
-        }
-
-        .visually-hidden {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border: 0;
+            filter: brightness(0.9);
         }
     </style>
 </head>
 <body>
 <div class="calculator">
-    <div class="theme-toggle">
-        <button id="theme-toggle-btn" aria-label="Переключить тему">
-            <svg class="theme-icon" id="theme-icon" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M9.37 2.73a.5.5 0 0 0-.61.31 7 7 0 1 0 8.9 8.9.5.5 0 0 0 .31-.61 8 8 0 1 1-9.6-9.6z"/>
-            </svg>
-        </button>
-    </div>
-    <label for="display" class="visually-hidden">Результат вычислений</label>
-    <input id="display" class="display" type="text" value="0" readonly aria-label="Результат вычислений">
+    <button class="theme-toggle" id="themeToggle" aria-label="Переключить тему">🌙</button>
+    <input id="display" class="display" type="text" value="0" readonly>
     <div class="keys">
         <button data-action="clear">C</button>
         <button data-action="backspace">⌫</button>
@@ -188,191 +164,96 @@
 </div>
 
 <script>
-    class Calculator {
-        constructor(displayElement) {
-            this.display = displayElement;
-            this.currentOperand = '0';
-            this.previousOperand = null;
-            this.operation = null;
-            this.resetOnNextInput = false;
-        }
-
-        // Update the display with current operand
-        updateDisplay() {
-            this.display.value = this.currentOperand;
-        }
-
-        // Clear the calculator state
-        clear() {
-            this.currentOperand = '0';
-            this.previousOperand = null;
-            this.operation = null;
-            this.resetOnNextInput = false;
-        }
-
-        // Delete the last character from current operand
-        backspace() {
-            if (this.currentOperand.length === 1 || this.currentOperand === 'Ошибка') {
-                this.currentOperand = '0';
-            } else {
-                this.currentOperand = this.currentOperand.slice(0, -1);
-            }
-        }
-
-        // Add a digit to the current operand
-        appendNumber(number) {
-            // If we're resetting on next input or current value is 'Ошибка', start fresh
-            if (this.resetOnNextInput || this.currentOperand === 'Ошибка') {
-                this.currentOperand = number;
-                this.resetOnNextInput = false;
-                return;
-            }
-
-            // Don't add leading zeros
-            if (this.currentOperand === '0' && number !== '.') {
-                this.currentOperand = number;
-                return;
-            }
-
-            // Don't add multiple decimal points
-            if (number === '.' && this.currentOperand.includes('.')) {
-                return;
-            }
-
-            this.currentOperand += number;
-        }
-
-        // Choose an operation
-        chooseOperation(operation) {
-            // If current value is 'Ошибка', do nothing
-            if (this.currentOperand === 'Ошибка') {
-                return;
-            }
-
-            // If we have a previous operation pending, compute it first
-            if (this.previousOperand !== null && !this.resetOnNextInput) {
-                this.compute();
-            }
-
-            this.operation = operation;
-            this.previousOperand = this.currentOperand;
-            this.resetOnNextInput = true;
-        }
-
-        // Perform the calculation
-        compute() {
-            // If we don't have both operands or operation, do nothing
-            if (this.operation === null || this.previousOperand === null) {
-                return;
-            }
-
-            const prev = parseFloat(this.previousOperand);
-            const current = parseFloat(this.currentOperand);
-            let result;
-
-            switch (this.operation) {
-                case 'add':
-                    result = prev + current;
-                    break;
-                case 'subtract':
-                    result = prev - current;
-                    break;
-                case 'multiply':
-                    result = prev * current;
-                    break;
-                case 'divide':
-                    if (current === 0) {
-                        this.currentOperand = 'Ошибка';
-                        this.operation = null;
-                        this.previousOperand = null;
-                        this.updateDisplay();
-                        return;
-                    }
-                    result = prev / current;
-                    break;
-                default:
-                    return;
-            }
-
-            // Round to handle floating point precision issues
-            result = Math.round((result + Number.EPSILON) * 1000000000000) / 1000000000000;
-            this.currentOperand = result.toString();
-            this.operation = null;
-            this.previousOperand = null;
-            this.resetOnNextInput = true;
-        }
-
-        // Calculate percentage
-        calculatePercentage() {
-            if (this.currentOperand === 'Ошибка') {
-                return;
-            }
-
-            const current = parseFloat(this.currentOperand);
-            this.currentOperand = (current / 100).toString();
-        }
-
-        // Update the calculator display
-        updateDisplay() {
-            this.display.value = this.currentOperand;
-        }
-    }
-
-    // Initialize calculator
-    (function() {
+    (function () {
         const display = document.getElementById('display');
         const keys = document.querySelector('.keys');
-        const themeToggleBtn = document.getElementById('theme-toggle-btn');
+        const themeToggle = document.getElementById('themeToggle');
+        let current = '0';
+        let operator = null;
+        let operand = null;
 
-        const calculator = new Calculator(display);
+        // Инициализация темы
+        const initTheme = () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeIcon(savedTheme);
+        };
 
-        // Theme toggle functionality
-        function toggleTheme() {
-            const body = document.body;
-            const themeIcon = document.getElementById('theme-icon');
-            const isDark = body.classList.contains('dark-theme');
+        // Обновление иконки темы
+        const updateThemeIcon = (theme) => {
+            themeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+        };
 
-            if (isDark) {
-                // Switch to light theme (show moon icon)
-                body.classList.remove('dark-theme');
-                themeIcon.innerHTML = '<path d="M9.37 2.73a.5.5 0 0 0-.61.31 7 7 0 1 0 8.9 8.9.5.5 0 0 0 .31-.61 8 8 0 1 1-9.6-9.6z"/>';
-                document.getElementById('theme-toggle-btn').setAttribute('aria-label', 'Переключить на темную тему');
-                localStorage.setItem('calculator-theme', 'light');
-            } else {
-                // Switch to dark theme (show sun icon)
-                body.classList.add('dark-theme');
-                themeIcon.innerHTML = '<path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.757a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591z"/>';
-                document.getElementById('theme-toggle-btn').setAttribute('aria-label', 'Переключить на светлую тему');
-                localStorage.setItem('calculator-theme', 'dark');
-            }
-        }
+        // Переключение темы
+        const toggleTheme = () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        };
 
-        // Check for saved theme preference
-        function initTheme() {
-            const savedTheme = localStorage.getItem('calculator-theme');
-            const body = document.body;
-            const themeIcon = document.getElementById('theme-icon');
-
-            if (savedTheme === 'dark') {
-                body.classList.add('dark-theme');
-                themeIcon.innerHTML = '<path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591z"/>';
-                document.getElementById('theme-toggle-btn').setAttribute('aria-label', 'Переключить на светлую тему');
-            } else {
-                body.classList.remove('dark-theme');
-                themeIcon.innerHTML = '<path d="M9.37 2.73a.5.5 0 0 0-.61.31 7 7 0 1 0 8.9 8.9.5.5 0 0 0 .31-.61 8 8 0 1 1-9.6-9.6z"/>';
-                document.getElementById('theme-toggle-btn').setAttribute('aria-label', 'Переключить на темную тему');
-            }
-        }
-
-        // Initialize theme on page load
+        // Инициализация при загрузке
         initTheme();
 
-        // Add event listeners
-        themeToggleBtn.addEventListener('click', toggleTheme);
+        // Обработчик переключения темы
+        themeToggle.addEventListener('click', toggleTheme);
+
+        const updateDisplay = () => {
+            display.value = current;
+        };
+
+        const setInput = (value) => {
+            if (current === '0' && value !== '.') {
+                current = value;
+            } else if (value === '.' && current.includes('.')) {
+                return;
+            } else {
+                current += value;
+            }
+            updateDisplay();
+        };
+
+        const setOperator = (op) => {
+            if (operator && operand !== null) {
+                compute();
+            }
+            operator = op;
+            operand = parseFloat(current);
+            current = '0';
+        };
+
+        const compute = () => {
+            if (operator === null || operand === null) {
+                return;
+            }
+            const right = parseFloat(current);
+            let result = operand;
+            switch (operator) {
+                case 'add':
+                    result += right;
+                    break;
+                case 'subtract':
+                    result -= right;
+                    break;
+                case 'multiply':
+                    result *= right;
+                    break;
+                case 'divide':
+                    result = right === 0 ? 'Ошибка' : result / right;
+                    break;
+                default:
+                    break;
+            }
+            current = String(result);
+            operator = null;
+            operand = null;
+            updateDisplay();
+        };
 
         keys.addEventListener('click', (event) => {
             const target = event.target;
-            if (target.tagName !== 'BUTTON' || target.id === 'theme-toggle-btn') {
+            if (target.tagName !== 'BUTTON') {
                 return;
             }
 
@@ -380,8 +261,7 @@
             const action = target.dataset.action;
 
             if (value) {
-                calculator.appendNumber(value);
-                calculator.updateDisplay();
+                setInput(value);
                 return;
             }
 
@@ -391,26 +271,23 @@
 
             switch (action) {
                 case 'clear':
-                    calculator.clear();
-                    calculator.updateDisplay();
+                    current = '0';
+                    operator = null;
+                    operand = null;
+                    updateDisplay();
                     break;
                 case 'backspace':
-                    calculator.backspace();
-                    calculator.updateDisplay();
+                    current = current.length > 1 ? current.slice(0, -1) : '0';
+                    updateDisplay();
                     break;
                 case 'add':
                 case 'subtract':
                 case 'multiply':
                 case 'divide':
-                    calculator.chooseOperation(action);
+                    setOperator(action);
                     break;
                 case 'equals':
-                    calculator.compute();
-                    calculator.updateDisplay();
-                    break;
-                case 'percent':
-                    calculator.calculatePercentage();
-                    calculator.updateDisplay();
+                    compute();
                     break;
                 default:
                     break;
@@ -420,3 +297,4 @@
 </script>
 </body>
 </html>
+
