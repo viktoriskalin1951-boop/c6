@@ -1,0 +1,17 @@
+{
+  "name": "calculator",
+  "version": "1.0.0",
+  "description": "Калькулятор с поддержкой светлой и темной темы",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx serve .",
+    "build": "echo 'No build step required for static site'"
+  },
+  "keywords": [
+    "calculator",
+    "html",
+    "javascript"
+  ],
+  "author": "",
+  "license": "MIT"
+}
