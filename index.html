@@ -3,11 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Простой браузерный калькулятор">
     <title>Калькулятор</title>
     <style>
         :root {
             font-family: Arial, sans-serif;
+            --bg-body: #f5f5f5;
+            --bg-calculator: #ffffff;
+            --bg-button: #e0e0e0;
+            --bg-display: #222;
+            --color-display: #0f0;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --color-text: #000;
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #1a1a1a;
+            --bg-calculator: #2d2d2d;
+            --bg-button: #404040;
+            --bg-display: #1a1a1a;
+            --color-display: #0f0;
+            --shadow: rgba(0, 0, 0, 0.5);
+            --color-text: #ffffff;
         }
 
         body {
@@ -16,28 +32,61 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            background: #f5f5f5;
+            background: var(--bg-body);
+            transition: background 0.3s ease;
         }
 
         .calculator {
             width: 320px;
             padding: 20px;
             border-radius: 12px;
-            background: #ffffff;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            background: var(--bg-calculator);
+            box-shadow: 0 10px 40px var(--shadow);
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 30px;
+            right: 20px;
+            width: 45px;
+            height: 45px;
+            border: none;
+            border-radius: 50%;
+            background: var(--bg-button);
+            color: var(--color-text);
+            font-size: 22px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease, transform 0.2s;
+            box-shadow: 0 2px 8px var(--shadow);
+            z-index: 10;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .theme-toggle:active {
+            transform: scale(0.95);
         }
 
         .display {
             width: 100%;
             height: 60px;
             margin-bottom: 12px;
+            margin-top: 10px;
             border: none;
             border-radius: 8px;
-            background: #222;
-            color: #0f0;
+            background: var(--bg-display);
+            color: var(--color-display);
             text-align: right;
             font-size: 32px;
-            padding: 0 12px;
+            padding: 0 70px 0 12px;
+            transition: background 0.3s ease, color 0.3s ease;
             box-sizing: border-box;
         }
 
@@ -53,8 +102,9 @@
             border-radius: 8px;
             font-size: 22px;
             cursor: pointer;
-            background: #e0e0e0;
-            transition: background 0.2s;
+            background: var(--bg-button);
+            color: var(--color-text);
+            transition: background 0.2s, color 0.2s;
         }
 
         button[data-action="clear"] {
@@ -64,6 +114,12 @@
 
         button.operator {
             background: #ffd84c;
+            color: #000;
+        }
+
+        [data-theme="dark"] button.operator {
+            background: #ffd84c;
+            color: #000;
         }
 
         button.equal {
@@ -75,45 +131,12 @@
         button:active {
             filter: brightness(0.9);
         }
-
-        button:hover {
-            filter: brightness(0.95);
-        }
-
-        .visually-hidden {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border: 0;
-        }
-
-        @media (max-width: 400px) {
-            .calculator {
-                width: 280px;
-                padding: 15px;
-            }
-
-            .display {
-                height: 50px;
-                font-size: 26px;
-            }
-
-            button {
-                height: 50px;
-                font-size: 18px;
-            }
-        }
     </style>
 </head>
 <body>
 <div class="calculator">
-    <label for="display" class="visually-hidden">Результат вычислений</label>
-    <input id="display" class="display" type="text" value="0" readonly aria-label="Результат вычислений">
+    <button class="theme-toggle" id="themeToggle" aria-label="Переключить тему">🌙</button>
+    <input id="display" class="display" type="text" value="0" readonly>
     <div class="keys">
         <button data-action="clear">C</button>
         <button data-action="backspace">⌫</button>
@@ -145,9 +168,37 @@
     (function () {
         const display = document.getElementById('display');
         const keys = document.querySelector('.keys');
+        const themeToggle = document.getElementById('themeToggle');
         let current = '0';
         let operator = null;
         let operand = null;
+
+        // Инициализация темы
+        const initTheme = () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeIcon(savedTheme);
+        };
+
+        // Обновление иконки темы
+        const updateThemeIcon = (theme) => {
+            themeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+        };
+
+        // Переключение темы
+        const toggleTheme = () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        };
+
+        // Инициализация при загрузке
+        initTheme();
+
+        // Обработчик переключения темы
+        themeToggle.addEventListener('click', toggleTheme);
 
         const updateDisplay = () => {
             display.value = current;
